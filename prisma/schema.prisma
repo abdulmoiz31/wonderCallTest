@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./media.db"
+}
+
+model User {
+  id                 Int               @id @default(autoincrement())
+  email              String            @unique
+  passwordHash       String
+  messages           Message[]
+  likes              MessageLike[]
+  comments           Comment[]
+}
+
+
+model Message {
+  id          Int         @id @default(autoincrement())
+  content     String      
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+  createdAt   DateTime    @default(now())
+  likes       MessageLike[]
+  comments    Comment[]
+}
+
+model Comment {
+  id          Int         @id @default(autoincrement())
+  content     String      
+  userId      Int
+  messageId   Int
+  createdAt   DateTime    @default(now())
+  user        User        @relation(fields: [userId], references: [id])
+  message     Message     @relation(fields: [messageId], references: [id])
+}
+
+model MessageLike {
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  userId      Int
+  messageId   Int
+  user        User        @relation(fields: [userId], references: [id])
+  message     Message     @relation(fields: [messageId], references: [id])
+
+  @@unique([messageId, userId])
+}
